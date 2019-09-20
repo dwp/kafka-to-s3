@@ -1,4 +1,5 @@
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
 import io.kotlintest.specs.StringSpec
 import lib.sendRecord
 import lib.timestamp
@@ -16,12 +17,16 @@ class Kafka2S3 : StringSpec({
         Thread.sleep(10_000)
         val s3object = s3client().getObject(Config.S3AWS.bucket, objectKey(key))
         println("Got s3Object '$s3object'.")
-        assert(s3object != null)
+        s3object shouldNotBe null
         val bytes = s3object.objectContent.readBytes()
 
         println("Bytes place on queue: '${String(body)}'.")
         println("Bytes read from s3: '${String(bytes)}'.")
         body shouldBe bytes
         assert(String(bytes) == String(body))
+
+        val metadata = s3object.objectMetadata
+        metadata.userMetadata["kafka-topic"] shouldBe Config.Kafka.deadLetterQueueTopic
+        metadata.userMetadata["kafka-timestamp"] shouldBe timestamp.toString()
     }
 })
