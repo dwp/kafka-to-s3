@@ -14,6 +14,10 @@ build: ## Build Kafka2S3
 dist: ## Assemble distribution files in build/dist
 	./gradlew assembleDist
 
+.PHONY: services
+services:
+	docker-compose up -d zookeeper kafka aws-s3 s3-provision
+
 .PHONY: up
 up: build-base
 	docker-compose up --build -d
@@ -33,4 +37,6 @@ destroy: down ## Bring down the Kafka2S3 Docker container and services then dele
 
 .PHONY: integration
 integration: up ## Run the integration tests in a Docker container
-	docker-compose run --rm integration-test ./gradlew --no-daemon --rerun-tasks integration
+	docker-compose run --rm integration-test \
+		./gradlew --no-daemon --rerun-tasks \
+		integration

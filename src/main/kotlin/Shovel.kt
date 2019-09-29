@@ -20,10 +20,13 @@ fun shovelAsync(kafka: KafkaConsumer<ByteArray, ByteArray>, s3client: AmazonS3, 
     GlobalScope.async {
         log.info(Config.Kafka.reportTopicSubscriptionDetails())
         while (isActive) {
+            log.info("Subscribing to '${Config.Kafka.deadLetterQueueTopic}' topic.")
             kafka.subscribe(setOf(Config.Kafka.deadLetterQueueTopic))
+            log.info("Polling '${Config.Kafka.deadLetterQueueTopic}' topic for '$pollTimeout'.")
             val records = kafka.poll(pollTimeout)
+            log.info("Got ${records.count()} records.")
             for (record in records) {
-
+                log.info("Processing record ${String(record.key())}")
                 val newKey: ByteArray = record.key() ?: ByteArray(0)
                 if (newKey.isEmpty()) {
                     log.warn(
@@ -67,7 +70,6 @@ fun putObject(s3client: AmazonS3, record: ConsumerRecord<ByteArray, ByteArray>) 
         BufferedInputStream(record.value().inputStream()),
         metadata)
     val putObjectResult = s3client.putObject(putObjectRequest)
-    //putObjectResult.metadata.
     logger.info("putObjectResult: '$putObjectResult'.")
 }
 

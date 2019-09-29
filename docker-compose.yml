@@ -6,6 +6,7 @@ services:
     image: confluentinc/cp-zookeeper:4.1.0
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+    container_name: zookeeper
 
   kafka:
     image: confluentinc/cp-kafka:4.1.0
@@ -15,6 +16,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    container_name: kafka
 
   kafka2s3:
     image: kafka2s3:latest
@@ -37,6 +39,7 @@ services:
       - SERVICES=s3
       - DEBUG=1
       - DATA_DIR=/opt/s3/data
+    container_name: aws-s3
 
   s3-provision:
     image: s3-bucket-provision
