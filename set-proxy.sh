@@ -1,9 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
-if [[ ! -z "$http_proxy_host" ]]; then
-    export GRADLE_OPTS="$GRADLE_OPTS -Dhttp.proxyHost=$http_proxy_host -Dhttp.proxyPort=$http_proxy_port"
+set -e
+
+if [ -n "${HTTP_PROXY_HOST}" ]; then
+    export GRADLE_OPTS="$GRADLE_OPTS -Dhttp.proxyHost=${HTTP_PROXY_HOST} -Dhttp.proxyPort=${HTTP_PROXY_HOST}"
 fi
 
-if [[ ! -z "$https_proxy_host" ]]; then
-    export GRADLE_OPTS="$GRADLE_OPTS -Dhttps.proxyHost=$https_proxy_host -Dhttps.proxyPort=$https_proxy_port"
+if [ -n "${HTTPS_PROXY_HOST}" ]; then
+    export GRADLE_OPTS="$GRADLE_OPTS -Dhttps.proxyHost=${HTTPS_PROXY_HOST} -Dhttps.proxyPort=${HTTPS_PROXY_HOST}"
 fi
