@@ -1,5 +1,5 @@
 # Multi stage docker build - stage 1 builds jar file
-FROM zenika/kotlin:1.3-jdk8-slim as build
+FROM zenika/kotlin:1.3-jdk8-alpine as build
 
 ARG http_proxy_host=""
 ARG http_proxy_port=""
@@ -33,7 +33,7 @@ COPY src/ ./src
 RUN $GRADLE distTar
 
 # Second build stage starts here
-FROM openjdk:8-slim
+FROM openjdk:8-jdk-alpine
 
 ARG http_proxy_full=""
 
@@ -53,18 +53,18 @@ RUN echo "ENV http: ${http_proxy}" \
     && echo "ENV HTTPS: ${HTTPS_PROXY}" \
     && echo "ARG full: ${http_proxy_full}"
 
+RUN echo "===> Updating base packages ..." \
+    && apk update \
+    && apk upgrade \
+    echo "==Update done=="
+
 ENV acm_cert_helper_version 0.8.0
 RUN echo "===> Installing Dependencies ..." \
-    && apt-get -qq update \
-    && apt-get install -y gosu uuid \
     && echo "===> Installing acm_pca_cert_generator ..." \
-    && apt-get install -y gcc python3-pip \
+    && apk add --no-cache gcc musl-dev python3-dev libffi-dev openssl-dev python3 \
     && pip3 install https://github.com/dwp/acm-pca-cert-generator/releases/download/${acm_cert_helper_version}/acm_cert_helper-${acm_cert_helper_version}.tar.gz \
     && echo "===> Cleaning up ..."  \
-    && apt-get remove -y gcc \
-    && apt-get autoremove -y \
-    && apt-get clean \
-    && rm -rf /tmp/* /var/lib/apt/lists/* \
+    && apk del gcc musl-dev python3-dev libffi-dev openssl-dev \
     && echo "==Dependencies done=="
 
 COPY ./entrypoint.sh /
