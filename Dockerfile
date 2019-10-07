@@ -61,6 +61,8 @@ RUN echo "===> Updating base packages ..." \
 ENV acm_cert_helper_version 0.8.0
 RUN echo "===> Installing Dependencies ..." \
     && echo "===> Installing acm_pca_cert_generator ..." \
+    && apk add --no-cache --virtual gosu \
+    && apk add --no-cache --virtual uuid \
     && apk add --no-cache gcc musl-dev python3-dev libffi-dev openssl-dev python3 \
     && pip3 install https://github.com/dwp/acm-pca-cert-generator/releases/download/${acm_cert_helper_version}/acm_cert_helper-${acm_cert_helper_version}.tar.gz \
     && echo "===> Cleaning up ..."  \
