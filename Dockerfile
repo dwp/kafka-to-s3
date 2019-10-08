@@ -37,7 +37,11 @@ FROM openjdk:8-jdk-alpine
 
 ARG http_proxy_full=""
 
-# Set environment variables for apt-get
+# Set user to run the process as in the docker container
+ENV USER_NAME=k2s3
+ENV GROUP_NAME=k2s3
+
+# Set environment variables for apk
 ENV http_proxy=${http_proxy_full}
 ENV https_proxy=${http_proxy_full}
 ENV HTTP_PROXY=${http_proxy_full}
@@ -46,6 +50,9 @@ ENV HTTPS_PROXY=${http_proxy_full}
 ARG VERSION=1.0-SNAPSHOT
 ARG DIST=kafka2s3-$VERSION
 ARG DIST_FILE=$DIST.tar
+
+RUN addgroup ${GROUP_NAME}
+RUN adduser -S -G ${GROUP_NAME} ${USER_NAME}
 
 RUN echo "ENV http: ${http_proxy}" \
     && echo "ENV https: ${https_proxy}" \
@@ -61,12 +68,11 @@ RUN echo "===> Updating base packages ..." \
 ENV acm_cert_helper_version 0.8.0
 RUN echo "===> Installing Dependencies ..." \
     && echo "===> Installing acm_pca_cert_generator ..." \
-    && apk add --no-cache --virtual gosu \
-    && apk add --no-cache --virtual uuid \
-    && apk add --no-cache gcc musl-dev python3-dev libffi-dev openssl-dev python3 \
+    && apk add --no-cache --virtual .acm-deps gcc musl-dev python3-dev libffi-dev openssl-dev \
+    && apk add --no-cache  python3 su-exec util-linux \
     && pip3 install https://github.com/dwp/acm-pca-cert-generator/releases/download/${acm_cert_helper_version}/acm_cert_helper-${acm_cert_helper_version}.tar.gz \
     && echo "===> Cleaning up ..."  \
-    && apk del gcc musl-dev python3-dev libffi-dev openssl-dev \
+    && apk del .acm-deps \
     && echo "==Dependencies done=="
 
 COPY ./entrypoint.sh /

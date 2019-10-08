@@ -2,17 +2,6 @@
 
 set -e
 
-# Create a user to run the process as instead of root
-
-: "${SUID:=1000}"
-: "${SGID:=1000}"
-
-if ! getent passwd user > /dev/null
-then
-    groupadd --non-unique --gid "$SGID" user
-    useradd --create-home --no-user-group --non-unique --uid "$SUID" --gid "$SGID" user
-fi
-
 # If a proxy is requested, set it up
 
 if [ -n "${INTERNET_PROXY}" ]; then
@@ -23,19 +12,18 @@ if [ -n "${INTERNET_PROXY}" ]; then
 fi
 
 # Generate a cert for Kafka mutual auth
-
+HOSTNAME=$(hostname)
 if [ "${K2S3_KAFKA_INSECURE}" != "true" ]; then
     SSL_DIR="$(mktemp -d)"
-    K2S3_PRIVATE_KEY_PASSWORD="$(uuid -v4)"
-    K2S3_KEYSTORE_PASSWORD="$(uuid -v4)"
-    K2S3_TRUSTSTORE_PASSWORD="$(uuid -v4)"
+    K2S3_PRIVATE_KEY_PASSWORD="$(uuidgen)"
+    K2S3_KEYSTORE_PASSWORD="$(uuidgen)"
+    K2S3_TRUSTSTORE_PASSWORD="$(uuidgen)"
     export K2S3_PRIVATE_KEY_PASSWORD K2S3_KEYSTORE_PASSWORD K2S3_TRUSTSTORE_PASSWORD
 
     export K2S3_KEYSTORE_PATH="${SSL_DIR}/k2s3.keystore"
     export K2S3_TRUSTSTORE_PATH="${SSL_DIR}/ks23.truststore"
 
     if [ "${K2S3_KAFKA_CERT_MODE}" = "CERTGEN" ]; then
-        HOSTNAME=$(hostname)
         echo "Generating cert for host ${HOSTNAME}"
 
         acm-pca-cert-generator \
@@ -51,7 +39,7 @@ if [ "${K2S3_KAFKA_INSECURE}" != "true" ]; then
     elif [ "${K2S3_KAFKA_CERT_MODE}" = "RETRIEVE" ]; then
 
         echo "Retrieving cert from ${RETRIEVER_ACM_CERT_ARN}"
-        RETRIEVER_ACM_KEY_PASSPHRASE="$(uuid -v4)"
+        RETRIEVER_ACM_KEY_PASSPHRASE="$(uuidgen)"
         export RETRIEVER_ACM_KEY_PASSPHRASE
 
         acm-cert-retriever \
@@ -68,10 +56,10 @@ if [ "${K2S3_KAFKA_INSECURE}" != "true" ]; then
         echo "K2S3_KAFKA_CERT_MODE must be one of 'CERTGEN,RETRIEVE' but was ${K2S3_KAFKA_CERT_MODE}"
         exit 1
     fi
-    chown -R ${SUID}:${SGID} "${SSL_DIR}"
+    chown -R "${USER_NAME}:${GROUP_NAME}" "${SSL_DIR}"
 else
     echo "Skipping cert generation for host ${HOSTNAME}"
 fi
 
-chown ${SUID}:${SGID} . -R
-exec gosu user "${@}"
+chown -R "${USER_NAME}:${GROUP_NAME}" .
+exec su-exec "${USER_NAME}" "${@}"
