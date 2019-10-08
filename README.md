@@ -49,19 +49,19 @@ tests are written in Kotlin and use the standard `kotlintest` testing framework.
 
     make integration
 
-## Run in an IDE                                                                                                                                                                              
-                                                                                                                                                                                              
-Both Kafka2S3 and the integration tests can be run in an IDE to facilitate                                                                                                                 
-quicker feedback then a containerized approach. This is useful during active development.                                                                                                     
-                                                                                                                                                                                              
-To do this first bring up the s3, kafka and zookeeper containers:                                                                                                                          
-                                                                                                                                                                                              
-    make services                                                                                                                                                                             
-                                                                                                                                                                                              
-Then insert into your local hosts file the names, IP addresses of the kafka and                                                                                                               
-hbase containers:                                                                                                                                                                             
-                                                                                                                                                                                              
-    ./hosts.sh                                     
+## Run in an IDE
+
+Both Kafka2S3 and the integration tests can be run in an IDE to facilitate
+quicker feedback then a containerized approach. This is useful during active development.
+
+To do this first bring up the s3, kafka and zookeeper containers:
+
+    make services
+
+Then insert into your local hosts file the names, IP addresses of the kafka and
+hbase containers:
+
+    make hosts
 
 The main class and the integration test class can now be run from an IDE.
 
