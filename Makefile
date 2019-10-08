@@ -18,6 +18,10 @@ dist: ## Assemble distribution files in build/dist
 services:
 	docker-compose up -d zookeeper kafka aws-s3 s3-provision
 
+.PHONY: hosts
+hosts:
+	./hosts.sh
+
 .PHONY: up
 up: build-base
 	docker-compose up --build -d
