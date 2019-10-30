@@ -14,28 +14,36 @@ RUN echo "ENV gradle: ${GRADLE_OPTS}" \
     && echo "ARG host: ${http_proxy_host}" \
     && echo "ARG port: ${http_proxy_port}"
 
-ENV GRADLE "/kafka2s3/gradlew --no-daemon"
+ENV GRADLE "/kafka2s3/gradlew"
 
 # Copy and generate the gradle wrapper
 COPY gradlew .
 COPY gradle/ ./gradle
-RUN $GRADLE wrapper
 
 # Copy the gradle config and install dependencies
 COPY build.gradle.kts .
 COPY settings.gradle.kts .
 COPY gradle.properties .
-RUN $GRADLE build
 
 # Copy the source
 COPY src/ ./src
 
-RUN $GRADLE distTar
+RUN $GRADLE wrapper \
+    && $GRADLE build \
+    && $GRADLE distTar
 
 # Second build stage starts here
-FROM openjdk:8-slim
+FROM openjdk:8-alpine
 
 ARG http_proxy_full=""
+
+# Define User and Groups
+ENV USER_NAME=k2s3
+ENV GROUP_NAME=k2s3
+
+RUN addgroup ${GROUP_NAME}
+RUN adduser --system --ingroup ${GROUP_NAME} ${USER_NAME}
+
 
 # Set environment variables for apt-get
 ENV http_proxy=${http_proxy_full}
@@ -55,25 +63,27 @@ RUN echo "ENV http: ${http_proxy}" \
 
 ENV acm_cert_helper_version 0.8.0
 RUN echo "===> Installing Dependencies ..." \
-    && apt-get -qq update \
-    && apt-get install -y gosu uuid \
-    && echo "===> Installing acm_pca_cert_generator ..." \
-    && apt-get install -y gcc python3-pip \
+    && echo "===> Updating base packages ..." \
+    && apk update \
+    && apk upgrade \
+    && echo "==Update done==" \
+    && apk add --no-cache g++ python3-dev libffi-dev openssl-dev gcc util-linux \
+    && pip3 install --upgrade pip setuptools \
     && pip3 install https://github.com/dwp/acm-pca-cert-generator/releases/download/${acm_cert_helper_version}/acm_cert_helper-${acm_cert_helper_version}.tar.gz \
-    && echo "===> Cleaning up ..."  \
-    && apt-get remove -y gcc \
-    && apt-get autoremove -y \
-    && apt-get clean \
-    && rm -rf /tmp/* /var/lib/apt/lists/* \
     && echo "==Dependencies done=="
 
-COPY ./entrypoint.sh /
-
 WORKDIR /kafka2s3
+
+
+COPY ./entrypoint.sh .
+
 
 COPY --from=build /kafka2s3/build/distributions/$DIST_FILE .
 
 RUN tar -xf $DIST_FILE --strip-components=1
 
-ENTRYPOINT ["/entrypoint.sh"]
+RUN chown ${USER_NAME}:${GROUP_NAME} . -R
+
+USER $USER_NAME
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["./bin/kafka2s3"]
