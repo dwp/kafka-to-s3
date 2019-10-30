@@ -74,9 +74,7 @@ RUN echo "===> Installing Dependencies ..." \
 
 WORKDIR /kafka2s3
 
-
 COPY ./entrypoint.sh .
-
 
 COPY --from=build /kafka2s3/build/distributions/$DIST_FILE .
 
