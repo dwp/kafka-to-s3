@@ -5,7 +5,7 @@ executors:
       IMAGE_NAME: dwpdigital/kafka-to-s3
     docker:
       - image: circleci/buildpack-deps:stretch
-      
+
 jobs:
   build:
     docker:
@@ -49,7 +49,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           # Attempt to enable DLC - if it's not enabled at an org level this will do nothing
-          docker_layer_caching: true
+          docker_layer_caching: false
 
         # Do not user the docker compose override to prevent invalid bind mounts
       - run: sudo pip3 install docker-compose
