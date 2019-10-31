@@ -14,6 +14,10 @@ if [ "${INTERNET_PROXY}" ]; then
     echo "Using proxy ${INTERNET_PROXY}"
 fi
 
+echo "Http proxy variables set to '${http_proxy}' and '${HTTP_PROXY}'"
+echo "Https proxy variables set to '${https_proxy}' and '${HTTPS_PROXY}'"
+echo "No proxy variables set to '${no_proxy}' and '${NO_PROXY}'"
+
 # Generate a cert for Kafka mutual auth
 
 if [[ "${K2S3_KAFKA_INSECURE}" != "true" ]]
@@ -65,5 +69,21 @@ then
 else
     echo "Skipping cert generation for host ${HOSTNAME}"
 fi
+
+# If a proxy is being used, unset it before running the jar
+
+if [ "${INTERNET_PROXY}" ]; then
+    unset http_proxy
+    unset HTTP_PROXY
+    unset https_proxy
+    unset HTTPS_PROXY
+    unset no_proxy
+    unset NO_PROXY
+    echo "Unset all proxy variables"
+fi
+
+echo "Http proxy variables set to '${http_proxy}' and '${HTTP_PROXY}'"
+echo "Https proxy variables set to '${https_proxy}' and '${HTTPS_PROXY}'"
+echo "No proxy variables set to '${no_proxy}' and '${NO_PROXY}'"
 
 exec "${@}"
