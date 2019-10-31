@@ -14,9 +14,9 @@ if [ "${INTERNET_PROXY}" ]; then
     echo "Using proxy ${INTERNET_PROXY}"
 fi
 
-echo "Http proxy variables set to ${http_proxy} and ${HTTP_PROXY}"
-echo "Https proxy variables set to ${https_proxy} and ${HTTPS_PROXY}"
-echo "No proxy variables set to ${no_proxy} and ${NO_PROXY}"
+echo "Http proxy variables set to '${http_proxy}' and '${HTTP_PROXY}'"
+echo "Https proxy variables set to '${https_proxy}' and '${HTTPS_PROXY}'"
+echo "No proxy variables set to '${no_proxy}' and '${NO_PROXY}'"
 
 # Generate a cert for Kafka mutual auth
 
@@ -82,8 +82,8 @@ if [ "${INTERNET_PROXY}" ]; then
     echo "Unset all proxy variables"
 fi
 
-echo "Http proxy variables set to ${http_proxy} and ${HTTP_PROXY}"
-echo "Https proxy variables set to ${https_proxy} and ${HTTPS_PROXY}"
-echo "No proxy variables set to ${no_proxy} and ${NO_PROXY}"
+echo "Http proxy variables set to '${http_proxy}' and '${HTTP_PROXY}'"
+echo "Https proxy variables set to '${https_proxy}' and '${HTTPS_PROXY}'"
+echo "No proxy variables set to '${no_proxy}' and '${NO_PROXY}'"
 
 exec "${@}"
