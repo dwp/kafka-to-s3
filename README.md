@@ -49,6 +49,22 @@ tests are written in Kotlin and use the standard `kotlintest` testing framework.
 
     make integration
 
+## Run in an IDE
+
+Both Kafka2S3 and the integration tests can be run in an IDE to facilitate
+quicker feedback then a containerized approach. This is useful during active development.
+
+To do this first bring up the s3, kafka and zookeeper containers:
+
+    make services
+
+Then insert into your local hosts file the names, IP addresses of the kafka and
+hbase containers:
+
+    make hosts
+
+The main class and the integration test class can now be run from an IDE.
+
 ## Getting logs
 
 The services are listed in the `docker-compose.yaml` file and logs can be
@@ -97,7 +113,7 @@ consumer group. It will poll the `test-topic` topic with a poll timeout of
 #### S3
 
 * **AWS_ENDPOINT_S3
-    Localstack only - whree to direct aws s3 api calls - default `http://aws-s3:4572`
+    Localstack only - where to direct aws s3 api calls - default `http://aws-s3:4572`
 * **AWS_LOCAL_CLIENT
     Configure the s3 client for localstack usage.
 * **AWS_REGION

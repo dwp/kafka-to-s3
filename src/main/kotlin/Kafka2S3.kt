@@ -20,13 +20,15 @@ import sun.misc.Signal
 val logger: Logger = LoggerFactory.getLogger("Kafka2S3")
 
 suspend fun main() {
-    val kafka = KafkaConsumer<ByteArray, ByteArray>(Config.Kafka.props)
-    val job = shovelAsync(kafka, s3client(), Config.Kafka.pollTimeout)
+    val kafkaConsumer = kafkaConsumer()
+    val job = shovelAsync(kafkaConsumer, s3client(), Config.Kafka.pollTimeout)
     Signal.handle(Signal("INT")) { job.cancel() }
     Signal.handle(Signal("TERM")) { job.cancel() }
     job.await()
-    kafka.close()
+    kafkaConsumer.close()
 }
+
+fun kafkaConsumer() = KafkaConsumer<ByteArray, ByteArray>(Config.Kafka.props)
 
 fun s3client(): AmazonS3 {
     return if (localClient) {
