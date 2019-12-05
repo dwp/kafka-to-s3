@@ -65,6 +65,22 @@ jobs:
           path: test-results
           destination: test-results
 
+  snyk:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    steps:
+      - checkout
+      - snyk/scan:
+          organization: dwp-dataworks
+          fail-on-issues: false
+          target-file: build.gradle.kts
+          project: '${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}-all'
+      - snyk/scan:
+          organization: dwp-dataworks
+          severity-threshold: high
+          target-file: build.gradle.kts
+          project: '${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}-high-only'
+
   build-image:
     executor: docker-publisher
     steps:
@@ -133,6 +149,9 @@ workflows:
     jobs:
       - build
       - test:
+          requires:
+            - build
+      - snyk:
           requires:
             - build
       - build-image:
