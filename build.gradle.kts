@@ -16,11 +16,11 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.amazonaws:aws-java-sdk-s3:1.11.603")
-    implementation("com.amazonaws:aws-java-sdk-core:1.11.603")
+    implementation("com.amazonaws:aws-java-sdk-s3:1.11.706")
+    implementation("com.amazonaws:aws-java-sdk-core:1.11.706")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.2.2")
     implementation("org.apache.kafka", "kafka-clients", "2.3.0")
-    implementation("ch.qos.logback", "logback-classic", "1.0.13")
+    implementation("ch.qos.logback", "logback-classic", "1.2.3")
     testImplementation("io.kotlintest", "kotlintest-runner-junit5", "3.3.2")
 }
 
