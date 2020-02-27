@@ -13,11 +13,9 @@ import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import sun.misc.Signal
 
-val logger: Logger = LoggerFactory.getLogger("Kafka2S3")
+val logger = JsonLoggerWrapper.getLogger("Kafka2S3Kt")
 
 suspend fun main() {
     val kafkaConsumer = kafkaConsumer()

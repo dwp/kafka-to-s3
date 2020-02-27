@@ -21,6 +21,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.2.2")
     implementation("org.apache.kafka", "kafka-clients", "2.3.0")
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
+    implementation("org.apache.commons", "commons-text", "1.8")
+
     testImplementation("io.kotlintest", "kotlintest-runner-junit5", "3.3.2")
 }
 

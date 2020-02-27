@@ -7,45 +7,42 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.isActive
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.io.BufferedInputStream
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.util.*
 
-val log: Logger = LoggerFactory.getLogger("shovelAsync")
+val log: JsonLoggerWrapper = JsonLoggerWrapper.getLogger("shovelAsync")
 
 fun shovelAsync(kafka: KafkaConsumer<ByteArray, ByteArray>, s3client: AmazonS3, pollTimeout: Duration) =
     GlobalScope.async {
         log.info(Config.Kafka.reportTopicSubscriptionDetails())
         while (isActive) {
-            log.info("Subscribing to '${Config.Kafka.deadLetterQueueTopic}' topic.")
+            log.info("Subscribing", "dead_letter_queue_topic", Config.Kafka.deadLetterQueueTopic)
             kafka.subscribe(setOf(Config.Kafka.deadLetterQueueTopic))
-            log.info("Polling '${Config.Kafka.deadLetterQueueTopic}' topic for '$pollTimeout'.")
+            log.info("Polling", "polling_timeout", "$pollTimeout")
             val records = kafka.poll(pollTimeout)
-            log.info("Got ${records.count()} records.")
+            log.info("Got records", "count", "${records.count()}")
             for (record in records) {
-                log.info("Processing record ${String(record.key())}")
+                log.info("Processing record", "record", "${record.key()}")
                 val newKey: ByteArray = record.key() ?: ByteArray(0)
                 if (newKey.isEmpty()) {
                     log.warn(
-                        "Empty key was skipped for %s:%d:%d".format(
-                            record.topic() ?: "null",
-                            record.partition(),
-                            record.offset()
-                        ))
+                        "Empty key was skipped",
+                            "topic", record.topic() ?: "null",
+                            "partition", record.partition().toString(),
+                            "offset", record.offset().toString())
                     continue
                 }
 
                 try {
                     putObject(s3client, record)
-                    log.info("""Written new key '$newKey', 
-                        |topic '${record.topic()}', 
-                        |partition: '${record.partition()}', 
-                        |offset: '${record.offset()}'.""".trimMargin())
+                    log.info("Written new key", "key", String(newKey),
+                            "topic", record.topic() ?: "null",
+                            "partition", "${record.partition()}",
+                            "offset", "${record.offset()}")
                 } catch (e: Exception) {
-                    log.error(e.message, e)
+                    log.error("Error putting object", "message", e.message ?: "")
                 }
             }
         }
@@ -70,7 +67,7 @@ fun putObject(s3client: AmazonS3, record: ConsumerRecord<ByteArray, ByteArray>) 
         BufferedInputStream(record.value().inputStream()),
         metadata)
     val putObjectResult = s3client.putObject(putObjectRequest)
-    logger.info("putObjectResult: '$putObjectResult'.")
+    logger.info("Put object", "result", "$putObjectResult")
 }
 
 fun objectKey(key: ByteArray): String {
