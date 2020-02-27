@@ -24,6 +24,8 @@ dependencies {
     implementation("org.apache.commons", "commons-text", "1.8")
     testImplementation("junit:junit:4.12")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
+    testImplementation("io.kotlintest", "kotlintest-runner-junit5", "3.3.2")
+
 }
 
 application {
@@ -53,7 +55,7 @@ tasks.register<Test>("integration") {
     group = "verification"
     testClassesDirs = sourceSets["integration"].output.classesDirs
     classpath = sourceSets["integration"].runtimeClasspath
-
+    useJUnitPlatform()
     testLogging {
         exceptionFormat = TestExceptionFormat.FULL
         events = setOf(TestLogEvent.SKIPPED, TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR)
