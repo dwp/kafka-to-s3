@@ -20,8 +20,7 @@ echo "No proxy variables set to '${no_proxy}' and '${NO_PROXY}'"
 
 # Generate a cert for Kafka mutual auth
 
-if [[ "${K2S3_KAFKA_INSECURE}" != "true" ]]
-then
+if [ "${K2S3_KAFKA_INSECURE}" != "true" ]; then
 
     SSL_DIR="$(mktemp -d)"
     export K2S3_PRIVATE_KEY_PASSWORD="$(uuidgen)"
@@ -32,7 +31,7 @@ then
     export K2S3_TRUSTSTORE_PATH="${SSL_DIR}/ks23.truststore"
     export K2S3_TRUSTSTORE_PASSWORD="$(uuidgen)"
 
-    if [[ "${K2S3_KAFKA_CERT_MODE}" == "CERTGEN" ]]; then
+    if [ "${K2S3_KAFKA_CERT_MODE}" == "CERTGEN" ]; then
 
         echo "Generating cert for host ${HOSTNAME}"
 
@@ -46,7 +45,7 @@ then
 
         echo "Cert generation result is $? for ${HOSTNAME}"
 
-    elif [[ "${K2S3_KAFKA_CERT_MODE}" == "RETRIEVE" ]]; then
+    elif [ "${K2S3_KAFKA_CERT_MODE}" == "RETRIEVE" ]; then
 
         echo "Retrieving cert from ${RETRIEVER_ACM_CERT_ARN}"
 
