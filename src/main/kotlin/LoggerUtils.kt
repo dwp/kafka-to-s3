@@ -44,10 +44,10 @@ fun makeLoggerStaticDataTuples(): String {
 
 fun resetLoggerStaticFieldsForTests() {
     hostname = InetAddress.getLocalHost().hostName
-    environment = System.getProperty("environment", UNSET_TEXT)
-    application = System.getProperty("application", UNSET_TEXT)
-    app_version = System.getProperty("app_version", UNSET_TEXT)
-    component = System.getProperty("component", UNSET_TEXT)
+    environment = System.getenv("K2S3_ENVIRONMENT") ?: UNSET_TEXT
+    app_version = System.getenv("K2S3_IMAGE_DIGEST") ?: UNSET_TEXT
+    component = System.getenv("K2S3_JAR_COMPONENT_NAME") ?: "jar_file"
+    application = System.getenv("K2S3_APPLICATION_NAME") ?: "Kafka2S3"
     staticData = makeLoggerStaticDataTuples()
 }
 
