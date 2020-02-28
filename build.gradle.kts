@@ -21,11 +21,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.2.2")
     implementation("org.apache.kafka", "kafka-clients", "2.3.0")
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
+    implementation("org.apache.commons", "commons-text", "1.8")
+    testImplementation("junit:junit:4.12")
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation("io.kotlintest", "kotlintest-runner-junit5", "3.3.2")
-}
 
-tasks.withType<Test> {
-    useJUnitPlatform { }
 }
 
 application {
@@ -38,8 +38,13 @@ tasks.withType<KotlinCompile> {
 
 sourceSets {
     create("integration") {
-        java.srcDir(file("src/integration/groovy"))
         java.srcDir(file("src/integration/kotlin"))
+        compileClasspath += sourceSets.getByName("main").output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+
+    create("unit") {
+        java.srcDir(file("src/test/kotlin"))
         compileClasspath += sourceSets.getByName("main").output + configurations.testRuntimeClasspath
         runtimeClasspath += output + compileClasspath
     }
@@ -50,10 +55,20 @@ tasks.register<Test>("integration") {
     group = "verification"
     testClassesDirs = sourceSets["integration"].output.classesDirs
     classpath = sourceSets["integration"].runtimeClasspath
-
-    useJUnitPlatform { }
+    useJUnitPlatform()
     testLogging {
         exceptionFormat = TestExceptionFormat.FULL
         events = setOf(TestLogEvent.SKIPPED, TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR)
+    }
+}
+
+tasks.register<Test>("unit") {
+    description = "Runs the unit tests"
+    group = "verification"
+    testClassesDirs = sourceSets["unit"].output.classesDirs
+    classpath = sourceSets["unit"].runtimeClasspath
+    testLogging {
+        exceptionFormat = TestExceptionFormat.FULL
+        events = setOf(TestLogEvent.SKIPPED, TestLogEvent.PASSED, TestLogEvent.FAILED)
     }
 }

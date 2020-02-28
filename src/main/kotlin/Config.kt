@@ -54,9 +54,6 @@ object Config {
 
         val pollTimeout: Duration = getEnv("K2S3_KAFKA_POLL_TIMEOUT")?.toDuration() ?: Duration.ofHours(1)
         val deadLetterQueueTopic: String = getEnv("K2S3_DEAD_LETTER_QUEUE") ?: "dead-letter-queue"
-        fun reportTopicSubscriptionDetails() =
-            """Subscribing to topics '${deadLetterQueueTopic}' 
-                |with poll timeout '${pollTimeout}' 
-                |and metadata refresh every '${props.getProperty(ConsumerConfig.METADATA_MAX_AGE_CONFIG)} ms'""".trimMargin()
+        fun reportTopicSubscriptionDetails() = props.getProperty(ConsumerConfig.METADATA_MAX_AGE_CONFIG)
     }
 }

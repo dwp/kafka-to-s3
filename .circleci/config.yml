@@ -52,17 +52,21 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          # Attempt to enable DLC - if it's not enabled at an org level this will do nothing
           docker_layer_caching: false
-
-        # Do not user the docker compose override to prevent invalid bind mounts
-      - run: sudo pip3 install docker-compose
-      - run: docker build --tag dwp-python-preinstall:latest --file ./python.preinstall.Dockerfile .
-      - run: docker-compose -f docker-compose.yml up --build -d
-      - run: docker-compose -f docker-compose.yml run --name integration-test integration-test ./gradlew integration
-
-        # Store the test results from inside the container
-      - run: docker cp integration-test:/kafka2s3/build/test-results .
+      - run:
+          name: "Run integration test"
+          command: |
+            sudo pip3 install docker-compose
+            docker build --tag dwp-python-preinstall:latest --file ./python.preinstall.Dockerfile .
+            docker-compose -f docker-compose.yml up --build -d zookeeper kafka aws-s3
+            S3_READY_REGEX=^Ready\.$
+            while ! docker logs aws-s3 2> /dev/null | grep -q $S3_READY_REGEX; do
+                echo Waiting for aws-s3.
+                sleep 2
+            done
+            docker-compose -f docker-compose.yml up --build s3-provision
+            docker-compose -f docker-compose.yml run --name integration-test integration-test ./gradlew integration
+            docker cp integration-test:/kafka2s3/build/test-results .
       - store_test_results:
           path: test-results
       - store_artifacts:
