@@ -39,6 +39,9 @@ services:
       - SERVICES=s3
       - DEBUG=1
       - DATA_DIR=/opt/s3/data
+      - AWS_REGION=eu-west-2
+      - AWS_DEFAULT_REGION=eu-west-2
+      - HOSTNAME_EXTERNAL=aws-s3
     container_name: aws-s3
     healthcheck:
       test: awslocal s3 ls
