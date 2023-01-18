@@ -50,7 +50,8 @@ services:
     depends_on:
       - aws-s3
     environment:
-      - S3_SERVICE_ENDPOINT=http://aws-s3:4572
+      # - S3_SERVICE_ENDPOINT=http://aws-s3:4572
+      - S3_SERVICE_ENDPOINT=http://locahost:4572
       - AWS_REGION=eu-west-2
       - AWS_DEFAULT_REGION=eu-west-2
       - AWS_ACCESS_KEY_ID=aws-access-key
