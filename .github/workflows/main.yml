@@ -3,7 +3,7 @@ name: Master
 on:
   push:
     branches:
-      - master
+      - mastercopy
     paths-ignore:
       - 'docs/**'
       - '*.md'
@@ -69,7 +69,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: dwpdigital/kafka-to-s3:${{ needs.get-publish-version.outputs.publish-version }},dwpdigital/kafka-to-s3:latest
+          tags: dwpdigital/kafka-to-s3:0.0.17,dwpdigital/kafka-to-s3:latest
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Create version file
@@ -91,8 +91,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ needs.get-publish-version.outputs.publish-version }}
-          release_name: ${{ needs.get-publish-version.outputs.publish-version }}
+          tag_name: 0.0.17
+          release_name: 0.0.17
           draft: false
           prerelease: false
 
