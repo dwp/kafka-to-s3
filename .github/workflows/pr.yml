@@ -55,6 +55,7 @@ jobs:
           docker-compose -f docker-compose.yml up --build s3-provision
           docker-compose -f docker-compose.yml run --name integration-test integration-test ./gradlew integration
           docker cp integration-test:/kafka2s3/build/test-results .
+          ls test-results
 
       - name: Test Summary
         uses: test-summary/action@v2
