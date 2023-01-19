@@ -39,7 +39,19 @@ services:
       - SERVICES=s3
       - DEBUG=1
       - DATA_DIR=/opt/s3/data
+      - AWS_REGION=eu-west-2
+      - AWS_DEFAULT_REGION=eu-west-2
+      - HOSTNAME_EXTERNAL=aws-s3
     container_name: aws-s3
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -c
+        - awslocal s3 ls
+      interval: 5s
+      timeout: 10s
+      start_period: 10s
 
   s3-provision:
     image: s3-bucket-provision
@@ -50,7 +62,7 @@ services:
     depends_on:
       - aws-s3
     environment:
-      - S3_SERVICE_ENDPOINT=http://aws-s3:4572
+      - S3_SERVICE_ENDPOINT=http://aws-s3:4566
       - AWS_REGION=eu-west-2
       - AWS_DEFAULT_REGION=eu-west-2
       - AWS_ACCESS_KEY_ID=aws-access-key

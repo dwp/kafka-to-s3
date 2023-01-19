@@ -1,0 +1,58 @@
+name: Perform PR Build and tests
+
+on:
+  pull_request:
+    paths-ignore:
+      - '.github/workflows/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      JAVA_OPTS: "-Xmx3200m"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          java-package: jdk
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Run Gradle
+        run: |
+            set +o pipefail
+            LATEST_VERSION=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+            [  -z "$LATEST_VERSION" ] && LATEST_VERSION="0.0.0"
+            VERSION=$(echo $LATEST_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+            ./gradlew build
+            ./gradlew distTar
+            gzip -9 build/distributions/*.tar
+            mkdir artifacts
+            cp README.md artifacts
+
+      - name: Integration tests
+        run: | 
+          sudo pip3 install docker-compose
+          docker build --tag dwp-python-preinstall:latest --file ./python.preinstall.Dockerfile .
+          docker-compose -f docker-compose.yml up --build -d zookeeper kafka aws-s3
+          S3_READY_REGEX=^Ready\.$
+          while ! docker logs aws-s3 2> /dev/null | grep -q $S3_READY_REGEX; do
+              echo Waiting for aws-s3.
+              sleep 2
+          done
+          docker-compose -f docker-compose.yml up --build s3-provision
+          docker-compose -f docker-compose.yml run --name integration-test integration-test ./gradlew integration
+          docker cp integration-test:/kafka2s3/build/test-results .
+
