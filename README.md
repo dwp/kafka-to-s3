@@ -113,7 +113,7 @@ consumer group. It will poll the `test-topic` topic with a poll timeout of
 #### S3
 
 * **AWS_ENDPOINT_S3
-    Localstack only - where to direct aws s3 api calls - default `http://aws-s3:4572`
+    Localstack only - where to direct aws s3 api calls - default `http://aws-s3:4566`
 * **AWS_LOCAL_CLIENT
     Configure the s3 client for localstack usage.
 * **AWS_REGION

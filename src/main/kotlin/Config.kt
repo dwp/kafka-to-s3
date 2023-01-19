@@ -17,7 +17,7 @@ fun String.toDuration(): Duration {
 object Config {
 
     object S3AWS {
-        val serviceEndpoint = getEnv("AWS_ENDPOINT_S3") ?: "http://aws-s3:4572"
+        val serviceEndpoint = getEnv("AWS_ENDPOINT_S3") ?: "http://aws-s3:4566"
         val region = getEnv("AWS_REGION") ?: "eu-west-2"
         val accessKey = getEnv("AWS_ACCESS_KEY") ?: "aws-access-key"
         val secretKey = getEnv("AWS_SECRET_KEY") ?: "aws-secret-access-key"
