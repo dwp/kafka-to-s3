@@ -42,7 +42,6 @@ services:
       - AWS_REGION=eu-west-2
       - AWS_DEFAULT_REGION=eu-west-2
       - HOSTNAME_EXTERNAL=aws-s3
-    container_name: aws-s3
     healthcheck:
       test:
         - CMD

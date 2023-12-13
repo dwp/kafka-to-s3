@@ -46,13 +46,13 @@ jobs:
         run: | 
           sudo pip3 install docker-compose
           docker build --tag dwp-python-preinstall:latest --file ./python.preinstall.Dockerfile .
-          docker-compose -f docker-compose.yml up --build -d zookeeper kafka aws-s3
+          docker compose -f docker-compose.yml up --build -d zookeeper kafka aws-s3
           S3_READY_REGEX=^Ready\.$
           while ! docker logs aws-s3 2> /dev/null | grep -q $S3_READY_REGEX; do
               echo Waiting for aws-s3.
               sleep 2
           done
-          docker-compose -f docker-compose.yml up --build s3-provision
-          docker-compose -f docker-compose.yml run --name integration-test integration-test ./gradlew integration
+          docker compose -f docker-compose.yml up --build s3-provision
+          docker compose -f docker-compose.yml run --name integration-test integration-test ./gradlew integration
           docker cp integration-test:/kafka2s3/build/test-results .
 

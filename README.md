@@ -1,3 +1,5 @@
+# DO NOT USE THIS REPO - MIGRATED TO GITLAB
+
 # Kafka2S3
 
 Listens to a kafka topic and writes it unadulterated to s3.
